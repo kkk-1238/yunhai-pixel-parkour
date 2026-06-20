@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>云海像素跑酷</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="game-wrap" aria-label="云海像素跑酷">
+        <canvas id="game" width="1280" height="720"></canvas>
+        <div class="hud">
+          <div class="brand">
+            <span>云海像素跑酷</span>
+            <small id="biomeName">草原</small>
+          </div>
+          <div class="stats">
+            <span id="gemCount">宝石 0 / 24</span>
+            <span id="energyText">飞翔 100%</span>
+            <span id="checkpointText">营地 1</span>
+          </div>
+        </div>
+        <div class="help">
+          <span>← → / A D</span>
+          <span>跳跃 W / ↑ / 空格</span>
+          <span>疾跑 Shift</span>
+          <span>飞翔 长按空格</span>
+          <span>R 返回营地</span>
+        </div>
+        <button id="startButton" class="start-panel" type="button">
+          <strong>开始冒险</strong>
+          <span>穿过草原、森林、海洋和天空群岛，收集星晶，找到终点灯塔。</span>
+        </button>
+        <div id="toast" class="toast" hidden></div>
+      </section>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
