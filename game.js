@@ -6,6 +6,9 @@ const gemCount = document.getElementById("gemCount");
 const energyText = document.getElementById("energyText");
 const checkpointText = document.getElementById("checkpointText");
 const toast = document.getElementById("toast");
+const achievementModal = document.getElementById("achievementModal");
+const achievementText = document.getElementById("achievementText");
+const restartButton = document.getElementById("restartButton");
 
 ctx.imageSmoothingEnabled = false;
 
@@ -132,6 +135,35 @@ function showMessage(text) {
   toast.hidden = false;
 }
 
+function showAchievement() {
+  const title = player.gems >= 16 ? "你点亮了天空灯塔，完成了云海探险！" : "你抵达了天空灯塔，完成了轻松通关！";
+  achievementText.textContent = `${title} 星晶 ${player.gems} / ${MAX_GEMS}`;
+  achievementModal.hidden = false;
+}
+
+function restartGame() {
+  won = false;
+  started = true;
+  player.x = 120;
+  player.y = 1150;
+  player.vx = 0;
+  player.vy = 0;
+  player.face = 1;
+  player.ground = false;
+  player.jumps = 0;
+  player.energy = 100;
+  player.gems = 0;
+  player.checkpoint = { x: 120, y: 1150, name: "草原营地" };
+  player.invuln = 60;
+  gems.forEach((gem) => gem.got = false);
+  checkpoints.forEach((checkpoint) => checkpoint.active = false);
+  checkpoints[0].active = true;
+  checkpointText.textContent = "草原营地";
+  achievementModal.hidden = true;
+  startButton.classList.add("hidden");
+  showMessage("新的冒险开始了！");
+}
+
 function respawn() {
   player.x = player.checkpoint.x;
   player.y = player.checkpoint.y;
@@ -241,7 +273,8 @@ function updatePlayer() {
 
   if (overlap(player, finish) && !won) {
     won = true;
-    showMessage(player.gems >= 16 ? "灯塔亮起，通关！你完成了云海探险。" : "抵达灯塔！再收集一些星晶会让结局更闪亮。");
+    showMessage("成就达成：云海探险家！");
+    showAchievement();
   }
 
   if (player.y > WORLD_H + 160) respawn();
@@ -498,6 +531,8 @@ startButton.addEventListener("click", () => {
   startButton.classList.add("hidden");
   showMessage("向右出发，Shift 疾跑，长按跳跃可以飞翔。");
 });
+
+restartButton.addEventListener("click", restartGame);
 
 buildWorld();
 checkpoints[0].active = true;

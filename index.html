@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <title>云海像素跑酷</title>
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=5">
   </head>
   <body>
     <main class="shell">
@@ -43,9 +43,18 @@
           <strong>开始冒险</strong>
           <span>穿过草原、森林、海洋和天空群岛，收集星晶，找到终点灯塔。</span>
         </button>
+        <div id="achievementModal" class="achievement-modal" hidden>
+          <div class="achievement-card">
+            <span class="achievement-medal">★</span>
+            <small>成就达成</small>
+            <strong>云海探险家</strong>
+            <p id="achievementText">你点亮了天空灯塔。</p>
+            <button id="restartButton" type="button">再玩一次</button>
+          </div>
+        </div>
         <div id="toast" class="toast" hidden></div>
       </section>
     </main>
-    <script src="game.js?v=4"></script>
+    <script src="game.js?v=5"></script>
   </body>
 </html>
