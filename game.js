@@ -16,9 +16,10 @@ const W = canvas.width;
 const H = canvas.height;
 const TILE = 32;
 const WORLD_W = 12200;
-const WORLD_H = 1600;
+const WORLD_TOP = -980;
+const WORLD_H = 2200;
 const GRAVITY = 0.74;
-const MAX_GEMS = 40;
+const MAX_GEMS = 55;
 
 const keys = new Set();
 const touchKeys = new Set();
@@ -26,7 +27,8 @@ const solids = [];
 const gems = [];
 const checkpoints = [];
 const springs = [];
-const finish = { x: 11670, y: 340, w: 70, h: 210 };
+const creatures = [];
+const finish = { x: 11680, y: -830, w: 70, h: 210 };
 
 let started = false;
 let won = false;
@@ -74,6 +76,23 @@ function addSpring(x, y) {
   springs.push({ x, y, w: 36, h: 18, pulse: 0 });
 }
 
+function addCreature(type, x, y, rangeX = 40, rangeY = 18) {
+  const size = type === "shark" || type === "eagle" ? 54 : 42;
+  creatures.push({
+    type,
+    baseX: x,
+    baseY: y,
+    x,
+    y,
+    w: size,
+    h: type === "bird" ? 28 : 34,
+    rangeX,
+    rangeY,
+    phase: Math.random() * Math.PI * 2,
+    cooldown: 0
+  });
+}
+
 function buildWorld() {
   rect(0, 1320, 2220, 280, "grass");
   rect(260, 1180, 300, 28, "grass");
@@ -103,6 +122,13 @@ function buildWorld() {
   rect(6760, 1080, 180, 24, "ocean");
   rect(7190, 980, 220, 24, "sand");
   rect(7420, 820, 180, 24, "sand");
+  rect(4920, 1630, 210, 24, "ocean");
+  rect(5350, 1770, 230, 24, "ocean");
+  rect(5820, 1940, 260, 28, "sand");
+  rect(6280, 1810, 230, 24, "ocean");
+  rect(6750, 1980, 250, 28, "sand");
+  rect(7180, 1730, 240, 24, "ocean");
+  rect(7470, 1540, 240, 24, "sand");
 
   rect(7680, 1390, 380, 210, "cloud");
   rect(8060, 1210, 310, 28, "cloud");
@@ -123,6 +149,14 @@ function buildWorld() {
   rect(10230, 990, 150, 24, "cloud");
   rect(10620, 430, 150, 24, "cloud");
   rect(11020, 1040, 150, 24, "cloud");
+  rect(8790, 500, 180, 24, "cloud");
+  rect(9180, 300, 180, 24, "cloud");
+  rect(9560, 90, 190, 24, "cloud");
+  rect(9960, -130, 190, 24, "cloud");
+  rect(10380, -330, 200, 24, "cloud");
+  rect(10820, -530, 210, 24, "cloud");
+  rect(11270, -710, 220, 24, "cloud");
+  rect(11620, -620, 210, 90, "cloud");
 
   [
     [420, 1128], [930, 1010], [1410, 890], [1860, 1020],
@@ -134,15 +168,21 @@ function buildWorld() {
     [8960, 830], [9360, 670], [9720, 880], [9910, 540],
     [10130, 730], [10300, 940], [10550, 560], [10710, 390],
     [10950, 710], [11100, 990], [11340, 510], [11690, 450],
+    [5030, 1580], [5460, 1720], [5940, 1890], [6400, 1760],
+    [6880, 1930], [7300, 1680], [7560, 1490],
+    [8880, 450], [9270, 250], [9660, 40], [10060, -180],
+    [10480, -380], [10930, -580], [11390, -760], [11710, -690],
     [2100, 1230], [4420, 1230], [7560, 1280]
   ].forEach(([x, y]) => addGem(x, y));
 
   addCheckpoint(110, 1250, "草原营地");
   addCheckpoint(2520, 1060, "森林营地");
   addCheckpoint(5100, 970, "海风营地");
+  addCheckpoint(5850, 1870, "海底营地");
   addCheckpoint(6900, 1010, "珊瑚营地");
   addCheckpoint(8100, 1140, "云端营地");
   addCheckpoint(10470, 540, "高空营地");
+  addCheckpoint(10880, -600, "云顶营地");
   addSpring(1980, 1300);
   addSpring(4380, 1300);
   addSpring(5570, 1370);
@@ -151,6 +191,18 @@ function buildWorld() {
   addSpring(9160, 700);
   addSpring(10180, 760);
   addSpring(11170, 1020);
+  addSpring(9850, 70);
+  addSpring(10620, -360);
+  addSpring(11470, -740);
+
+  addCreature("dolphin", 5200, 1540, 80, 26);
+  addCreature("dolphin", 7050, 1650, 70, 24);
+  addCreature("shark", 5660, 1880, 110, 18);
+  addCreature("shark", 6630, 2010, 95, 18);
+  addCreature("bird", 9000, 390, 70, 32);
+  addCreature("bird", 10080, -240, 75, 30);
+  addCreature("eagle", 9650, 250, 110, 34);
+  addCreature("eagle", 11120, -470, 120, 30);
 }
 
 function biomeAt(x) {
@@ -169,7 +221,7 @@ function showMessage(text) {
 }
 
 function showAchievement() {
-  const title = player.gems >= 28 ? "你点亮了天空灯塔，完成了云海探险！" : "你抵达了天空灯塔，完成了轻松通关！";
+  const title = player.gems >= 36 ? "你点亮了天空灯塔，完成了云海探险！" : "你抵达了天空灯塔，完成了轻松通关！";
   achievementText.textContent = `${title} 星晶 ${player.gems} / ${MAX_GEMS}`;
   achievementModal.hidden = false;
 }
@@ -205,6 +257,40 @@ function respawn() {
   player.energy = 100;
   player.invuln = 90;
   showMessage("回到最近的营地，继续向前！");
+}
+
+function updateCreatures() {
+  for (const creature of creatures) {
+    creature.x = creature.baseX + Math.sin(time * 0.025 + creature.phase) * creature.rangeX;
+    creature.y = creature.baseY + Math.sin(time * 0.035 + creature.phase) * creature.rangeY;
+    creature.cooldown = Math.max(0, creature.cooldown - 1);
+    if (!overlap(player, creature) || creature.cooldown > 0) continue;
+
+    if (creature.type === "dolphin") {
+      player.vx = Math.max(player.vx, 10);
+      player.vy = -13;
+      player.energy = 100;
+      creature.cooldown = 120;
+      showMessage("海豚托起了你，冲向前方！");
+    }
+
+    if (creature.type === "bird") {
+      player.vx += 6;
+      player.vy = -15;
+      player.energy = Math.min(100, player.energy + 35);
+      creature.cooldown = 120;
+      showMessage("小鸟带来一阵上升气流！");
+    }
+
+    if ((creature.type === "shark" || creature.type === "eagle") && player.invuln === 0) {
+      player.vx = creature.type === "shark" ? -8 : -5;
+      player.vy = creature.type === "shark" ? -11 : 8;
+      player.energy = Math.max(0, player.energy - 30);
+      player.invuln = 95;
+      creature.cooldown = 90;
+      showMessage(creature.type === "shark" ? "小心鲨鱼！它把你撞开了。" : "老鹰俯冲！稳住方向。");
+    }
+  }
 }
 
 function moveAndCollide() {
@@ -287,6 +373,8 @@ function updatePlayer() {
     spring.pulse = Math.max(0, spring.pulse - 1);
   }
 
+  updateCreatures();
+
   for (const gem of gems) {
     if (!gem.got && overlap(player, gem)) {
       gem.got = true;
@@ -320,7 +408,7 @@ function updateCamera() {
   camera.x += (player.x + player.w / 2 - W / 2 - camera.x) * 0.12;
   camera.y += (player.y + player.h / 2 - H / 2 - camera.y) * 0.1;
   camera.x = Math.max(0, Math.min(WORLD_W - W, camera.x));
-  camera.y = Math.max(0, Math.min(WORLD_H - H + 80, camera.y));
+  camera.y = Math.max(WORLD_TOP, Math.min(WORLD_H - H + 80, camera.y));
 }
 
 function drawPixelRect(x, y, w, h, color) {
@@ -430,6 +518,48 @@ function drawSprings() {
   }
 }
 
+function drawCreatures() {
+  for (const c of creatures) {
+    const x = c.x - camera.x;
+    const y = c.y - camera.y;
+
+    if (c.type === "dolphin") {
+      drawPixelRect(x + 4, y + 12, 34, 16, "#65d4ff");
+      drawPixelRect(x + 28, y + 6, 18, 12, "#65d4ff");
+      drawPixelRect(x, y + 18, 12, 8, "#2a83bd");
+      drawPixelRect(x + 16, y + 2, 10, 12, "#2a83bd");
+      drawPixelRect(x + 37, y + 10, 4, 4, "#24315c");
+      drawPixelRect(x + 8, y + 30, 10, 4, "#d8fbff");
+    }
+
+    if (c.type === "shark") {
+      drawPixelRect(x + 2, y + 12, 42, 18, "#55708e");
+      drawPixelRect(x + 38, y + 17, 16, 10, "#55708e");
+      drawPixelRect(x + 17, y + 2, 12, 14, "#31435f");
+      drawPixelRect(x + 42, y + 16, 4, 4, "#ffffff");
+      drawPixelRect(x + 46, y + 20, 4, 4, "#ffffff");
+      drawPixelRect(x + 8, y + 30, 22, 5, "#d8fbff");
+    }
+
+    if (c.type === "bird") {
+      drawPixelRect(x + 16, y + 10, 18, 12, "#ffe16a");
+      drawPixelRect(x + 4, y + 8, 16, 6, "#f7fbff");
+      drawPixelRect(x + 30, y + 8, 16, 6, "#f7fbff");
+      drawPixelRect(x + 34, y + 13, 8, 5, "#ff9f48");
+      drawPixelRect(x + 28, y + 12, 3, 3, "#24315c");
+    }
+
+    if (c.type === "eagle") {
+      drawPixelRect(x + 18, y + 12, 24, 14, "#7a583e");
+      drawPixelRect(x, y + 8, 24, 8, "#594130");
+      drawPixelRect(x + 36, y + 8, 24, 8, "#594130");
+      drawPixelRect(x + 40, y + 13, 10, 6, "#ffe16a");
+      drawPixelRect(x + 34, y + 14, 4, 4, "#24315c");
+      drawPixelRect(x + 20, y + 26, 12, 5, "#f7fbff");
+    }
+  }
+}
+
 function drawFinish() {
   const x = finish.x - camera.x;
   const y = finish.y - camera.y;
@@ -449,7 +579,7 @@ function drawPlayer() {
   const blink = player.invuln > 0 && Math.floor(time / 5) % 2 === 0;
   if (blink) return;
 
-  if (!player.ground && (keys.has(" ") || keys.has("ArrowUp") || keys.has("w")) && player.energy > 0) {
+  if (!player.ground && (keys.has(" ") || keys.has("ArrowUp") || keys.has("w") || touchKeys.has(" ")) && player.energy > 0) {
     drawPixelRect(x - 10, y + 12, 14, 18, "rgba(255,255,255,0.72)");
     drawPixelRect(x + player.w - 4, y + 12, 14, 18, "rgba(255,255,255,0.72)");
   }
@@ -493,6 +623,7 @@ function draw() {
   drawFinish();
   drawCheckpoints();
   drawSprings();
+  drawCreatures();
   drawGems();
   drawPlayer();
   ctx.restore();
