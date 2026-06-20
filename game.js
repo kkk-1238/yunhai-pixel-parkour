@@ -15,10 +15,10 @@ ctx.imageSmoothingEnabled = false;
 const W = canvas.width;
 const H = canvas.height;
 const TILE = 32;
-const WORLD_W = 9200;
+const WORLD_W = 12200;
 const WORLD_H = 1600;
 const GRAVITY = 0.74;
-const MAX_GEMS = 24;
+const MAX_GEMS = 40;
 
 const keys = new Set();
 const touchKeys = new Set();
@@ -26,7 +26,7 @@ const solids = [];
 const gems = [];
 const checkpoints = [];
 const springs = [];
-const finish = { x: 8720, y: 360, w: 70, h: 210 };
+const finish = { x: 11670, y: 340, w: 70, h: 210 };
 
 let started = false;
 let won = false;
@@ -54,8 +54,8 @@ const player = {
 const biomes = [
   { name: "草原", start: 0, end: 2300, sky: "#87d9ff", far: "#b5ecff", ground: "#68bd69", dark: "#3e8a52", accent: "#ffe16a" },
   { name: "森林", start: 2300, end: 4600, sky: "#83c9d2", far: "#a7e0cf", ground: "#398d57", dark: "#225a45", accent: "#bdf071" },
-  { name: "海洋", start: 4600, end: 6900, sky: "#7fc8ff", far: "#c1f2ff", ground: "#55c7cc", dark: "#237aa1", accent: "#ffd36b" },
-  { name: "天空", start: 6900, end: WORLD_W, sky: "#9edcff", far: "#d9f6ff", ground: "#87d874", dark: "#5572c7", accent: "#ffb7e8" }
+  { name: "海洋", start: 4600, end: 7600, sky: "#7fc8ff", far: "#c1f2ff", ground: "#55c7cc", dark: "#237aa1", accent: "#ffd36b" },
+  { name: "天空", start: 7600, end: WORLD_W, sky: "#9edcff", far: "#d9f6ff", ground: "#87d874", dark: "#5572c7", accent: "#ffb7e8" }
 ];
 
 function rect(x, y, w, h, type = "grass") {
@@ -88,36 +88,69 @@ function buildWorld() {
   rect(3650, 1030, 360, 28, "forest");
   rect(4140, 900, 250, 28, "forest");
 
-  rect(4560, 1390, 2080, 210, "ocean");
+  rect(4560, 1390, 1020, 210, "ocean");
+  rect(5900, 1390, 760, 210, "ocean");
+  rect(7000, 1390, 560, 210, "ocean");
   rect(4660, 1170, 290, 28, "sand");
   rect(5120, 1040, 300, 28, "sand");
   rect(5580, 910, 280, 28, "sand");
   rect(6030, 1020, 350, 28, "sand");
   rect(6500, 860, 260, 28, "sand");
+  rect(4860, 1280, 190, 24, "ocean");
+  rect(5350, 1235, 170, 24, "ocean");
+  rect(5850, 1135, 180, 24, "ocean");
+  rect(6260, 1195, 190, 24, "ocean");
+  rect(6760, 1080, 180, 24, "ocean");
+  rect(7190, 980, 220, 24, "sand");
+  rect(7420, 820, 180, 24, "sand");
 
-  rect(6900, 1390, 380, 210, "cloud");
-  rect(7280, 1210, 310, 28, "cloud");
-  rect(7690, 1030, 310, 28, "cloud");
-  rect(8100, 840, 320, 28, "cloud");
-  rect(8510, 610, 430, 28, "cloud");
-  rect(8740, 520, 120, 90, "cloud");
+  rect(7680, 1390, 380, 210, "cloud");
+  rect(8060, 1210, 310, 28, "cloud");
+  rect(8460, 1030, 310, 28, "cloud");
+  rect(8870, 880, 280, 28, "cloud");
+  rect(9250, 720, 280, 28, "cloud");
+  rect(9650, 930, 250, 28, "cloud");
+  rect(10040, 780, 260, 28, "cloud");
+  rect(10460, 610, 260, 28, "cloud");
+  rect(10860, 760, 240, 28, "cloud");
+  rect(11240, 560, 260, 28, "cloud");
+  rect(11620, 500, 180, 90, "cloud");
+  rect(7930, 1080, 150, 24, "cloud");
+  rect(8340, 900, 150, 24, "cloud");
+  rect(8730, 710, 150, 24, "cloud");
+  rect(9430, 1060, 150, 24, "cloud");
+  rect(9840, 590, 150, 24, "cloud");
+  rect(10230, 990, 150, 24, "cloud");
+  rect(10620, 430, 150, 24, "cloud");
+  rect(11020, 1040, 150, 24, "cloud");
 
   [
     [420, 1128], [930, 1010], [1410, 890], [1860, 1020],
     [2500, 1080], [2920, 940], [3370, 800], [3820, 980], [4260, 850],
-    [4780, 1120], [5250, 990], [5710, 860], [6180, 970], [6600, 810],
-    [7060, 1330], [7410, 1160], [7830, 980], [8240, 790], [8610, 560],
-    [8900, 470], [2100, 1230], [4420, 1230], [6820, 1280]
+    [4780, 1120], [4970, 1230], [5250, 990], [5450, 1185],
+    [5710, 860], [5940, 1085], [6180, 970], [6360, 1145],
+    [6600, 810], [6860, 1030], [7290, 930], [7480, 770],
+    [7840, 1330], [8190, 1160], [8420, 860], [8610, 980],
+    [8960, 830], [9360, 670], [9720, 880], [9910, 540],
+    [10130, 730], [10300, 940], [10550, 560], [10710, 390],
+    [10950, 710], [11100, 990], [11340, 510], [11690, 450],
+    [2100, 1230], [4420, 1230], [7560, 1280]
   ].forEach(([x, y]) => addGem(x, y));
 
   addCheckpoint(110, 1250, "草原营地");
   addCheckpoint(2520, 1060, "森林营地");
   addCheckpoint(5100, 970, "海风营地");
-  addCheckpoint(7315, 1140, "云端营地");
+  addCheckpoint(6900, 1010, "珊瑚营地");
+  addCheckpoint(8100, 1140, "云端营地");
+  addCheckpoint(10470, 540, "高空营地");
   addSpring(1980, 1300);
   addSpring(4380, 1300);
-  addSpring(6790, 1370);
-  addSpring(8420, 820);
+  addSpring(5570, 1370);
+  addSpring(6660, 1370);
+  addSpring(7560, 1370);
+  addSpring(9160, 700);
+  addSpring(10180, 760);
+  addSpring(11170, 1020);
 }
 
 function biomeAt(x) {
@@ -136,7 +169,7 @@ function showMessage(text) {
 }
 
 function showAchievement() {
-  const title = player.gems >= 16 ? "你点亮了天空灯塔，完成了云海探险！" : "你抵达了天空灯塔，完成了轻松通关！";
+  const title = player.gems >= 28 ? "你点亮了天空灯塔，完成了云海探险！" : "你抵达了天空灯塔，完成了轻松通关！";
   achievementText.textContent = `${title} 星晶 ${player.gems} / ${MAX_GEMS}`;
   achievementModal.hidden = false;
 }
