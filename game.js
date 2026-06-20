@@ -18,6 +18,7 @@ const GRAVITY = 0.74;
 const MAX_GEMS = 24;
 
 const keys = new Set();
+const touchKeys = new Set();
 const solids = [];
 const gems = [];
 const checkpoints = [];
@@ -167,10 +168,10 @@ function moveAndCollide() {
 }
 
 function updatePlayer() {
-  const left = keys.has("ArrowLeft") || keys.has("a");
-  const right = keys.has("ArrowRight") || keys.has("d");
-  const jumpHeld = keys.has(" ") || keys.has("ArrowUp") || keys.has("w");
-  const sprint = keys.has("Shift");
+  const left = keys.has("ArrowLeft") || keys.has("a") || touchKeys.has("ArrowLeft");
+  const right = keys.has("ArrowRight") || keys.has("d") || touchKeys.has("ArrowRight");
+  const jumpHeld = keys.has(" ") || keys.has("ArrowUp") || keys.has("w") || touchKeys.has(" ");
+  const sprint = keys.has("Shift") || touchKeys.has("Shift");
 
   const accel = sprint && player.energy > 4 ? 0.98 : 0.62;
   const maxSpeed = sprint && player.energy > 4 ? 9.2 : 6.1;
@@ -465,6 +466,31 @@ window.addEventListener("keydown", (event) => {
 
 window.addEventListener("keyup", (event) => {
   keys.delete(event.key.length === 1 ? event.key.toLowerCase() : event.key);
+});
+
+document.querySelectorAll("[data-key]").forEach((button) => {
+  const key = button.dataset.key;
+  const press = (event) => {
+    event.preventDefault();
+    touchKeys.add(key);
+    button.classList.add("is-pressed");
+    if (!started) startButton.click();
+  };
+  const release = (event) => {
+    event.preventDefault();
+    touchKeys.delete(key);
+    button.classList.remove("is-pressed");
+  };
+
+  button.addEventListener("pointerdown", press);
+  button.addEventListener("pointerup", release);
+  button.addEventListener("pointercancel", release);
+  button.addEventListener("pointerleave", release);
+});
+
+window.addEventListener("blur", () => {
+  touchKeys.clear();
+  document.querySelectorAll(".touch-btn").forEach((button) => button.classList.remove("is-pressed"));
 });
 
 startButton.addEventListener("click", () => {
